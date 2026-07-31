@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Actuary Career Match | Find Your Next Opportunity{% endblock %}
+
+{% block content %}
+<section class="hero py-5">
+    <div class="container py-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge text-bg-light text-primary mb-3">Built for aspiring actuaries</span>
+                <h1 class="display-4 fw-bold">Find the actuarial opportunity that fits your future.</h1>
+                <p class="lead text-secondary my-4">
+                    Actuary Career Match helps students and early-career candidates discover
+                    internships and jobs aligned with their education, preferences, and goals.
+                </p>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-primary btn-lg" href="{% url 'profiles:detail' %}">View your profile</a>
+                {% else %}
+                    <a class="btn btn-primary btn-lg me-2" href="{% url 'accounts:register' %}">Create your profile</a>
+                    <a class="btn btn-outline-primary btn-lg" href="{% url 'accounts:login' %}">Sign in</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4 p-lg-5">
+                        <h2 class="h4">A clearer career search</h2>
+                        <p class="text-secondary mb-0">
+                            Build one focused candidate profile today. Personalized actuarial
+                            internship and job recommendations will follow as the platform grows.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

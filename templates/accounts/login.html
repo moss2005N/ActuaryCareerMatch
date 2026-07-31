@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Actuary Career Match{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Welcome back</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                        <button class="btn btn-primary w-100" type="submit">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

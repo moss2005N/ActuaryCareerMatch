@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile | Actuary Career Match{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Edit your profile</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">Save profile</button>
+                            <a class="btn btn-outline-secondary" href="{% url 'profiles:detail' %}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

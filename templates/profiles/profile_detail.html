@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile | Actuary Career Match{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h2 mb-1">{{ profile.full_name|default:user.username }}</h1>
+            <p class="text-secondary mb-0">Your private candidate profile</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'profiles:edit' %}">Edit profile</a>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Location</dt>
+                <dd class="col-sm-8">{{ profile.city|default:"—" }}{% if profile.state %}, {{ profile.state }}{% endif %}{% if profile.country %}, {{ profile.country }}{% endif %}</dd>
+                <dt class="col-sm-4">University</dt>
+                <dd class="col-sm-8">{{ profile.university|default:"—" }}</dd>
+                <dt class="col-sm-4">Major</dt>
+                <dd class="col-sm-8">{{ profile.major|default:"—" }}</dd>
+                <dt class="col-sm-4">Employment preference</dt>
+                <dd class="col-sm-8">{{ profile.get_preferred_employment_type_display|default:"—" }}</dd>
+                <dt class="col-sm-4">Work arrangement</dt>
+                <dd class="col-sm-8">{{ profile.get_preferred_work_arrangement_display|default:"—" }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
