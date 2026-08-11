@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Save Recovery Codes | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:42rem"><div class="card-body p-4">
+<h1 class="h3">Save your recovery codes</h1><p>Each code works once. Store them securely; they will not be shown again.</p>
+<ul class="font-monospace">{% for code in codes %}<li>{{ code }}</li>{% endfor %}</ul>
+<a class="btn btn-primary" href="{% url 'accounts:security' %}">Continue to security</a>
+</div></div></div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Account Security | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><h1 class="h2 mb-4">Account security</h1><div class="card border-0 shadow-sm"><div class="card-body p-4">
+<div class="row border-bottom py-3"><div class="col-md-4 fw-semibold">Email</div><div class="col-md-5">{{ masked_email }} · {% if user.email_verified %}<span class="text-success">Verified</span>{% else %}<span class="text-danger">Not verified</span>{% endif %}</div><div class="col-md-3 text-md-end"><a href="{% url 'accounts:change_email' %}">Change email</a></div></div>
+<div class="row border-bottom py-3"><div class="col-md-4 fw-semibold">Phone</div><div class="col-md-5">{{ masked_phone }} · {% if user.phone_number_verified %}<span class="text-success">Verified</span>{% else %}<span class="text-danger">Not verified</span>{% endif %}</div><div class="col-md-3 text-md-end"><a href="{% url 'accounts:phone_change' %}">Change phone</a></div></div>
+<div class="row py-3"><div class="col-md-9">Recovery codes provide one-time access if you lose your phone.</div><div class="col-md-3 text-md-end"><a href="{% url 'accounts:regenerate_recovery_codes' %}">Regenerate codes</a></div></div>
+</div></div></div>
+{% endblock %}

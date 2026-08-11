@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Change Email | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:40rem"><div class="card-body p-4">
+<h1 class="h3">Change email</h1><p class="text-secondary">You will be signed out and must verify the new address.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Send verification link</button></form>
+</div></div></div>
+{% endblock %}

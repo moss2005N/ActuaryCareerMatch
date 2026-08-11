@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ purpose }} | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:36rem"><div class="card-body p-4">
+<h1 class="h3">{{ purpose }}</h1>
+<p class="text-secondary">Enter the code sent to {{ masked_phone }}.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Verify code</button></form>
+<form class="mt-3 d-inline-block" method="post" action="{{ resend_url }}">{% csrf_token %}<button class="btn btn-link px-0" type="submit">Resend code</button></form>
+{% if recovery_url %}<a class="btn btn-link" href="{{ recovery_url }}">Use a recovery code</a>{% endif %}
+</div></div></div>
+{% endblock %}

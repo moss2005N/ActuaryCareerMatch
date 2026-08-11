@@ -20,6 +20,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">Home</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'profiles:detail' %}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:security' %}">Security</a></li>
                         <li class="nav-item">
                             <form method="post" action="{% url 'accounts:logout' %}">
                                 {% csrf_token %}
@@ -36,6 +37,13 @@
     </nav>
 
     <main class="flex-grow-1">
+        {% if messages %}
+            <div class="container pt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 
@@ -45,4 +53,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

@@ -8,7 +8,8 @@
         <div class="col-md-7 col-lg-5">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h1 class="h3 mb-4">Welcome back</h1>
+                    <h1 class="h3 mb-2">Welcome back</h1>
+                    <p class="text-secondary mb-4">Enter your username or email and password.</p>
                     <form method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
@@ -21,4 +22,3 @@
     </div>
 </div>
 {% endblock %}
-

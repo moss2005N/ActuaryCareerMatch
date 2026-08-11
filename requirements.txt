@@ -5,3 +5,6 @@ sqlparse==0.5.5
 # Optional PostgreSQL driver. Uncomment when using DB_ENGINE=postgresql.
 # psycopg[binary]>=3.2,<4
 
+# Optional production SMS provider. Uncomment when using
+# PHONE_VERIFICATION_BACKEND=twilio.
+# twilio>=9,<10

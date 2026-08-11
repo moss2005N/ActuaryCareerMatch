@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Regenerate Recovery Codes | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:40rem"><div class="card-body p-4">
+<h1 class="h3">Regenerate recovery codes</h1><p class="text-secondary">Confirm your password. Existing unused codes will be invalidated.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-danger" type="submit">Generate new codes</button></form>
+</div></div></div>
+{% endblock %}

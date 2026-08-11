@@ -7,8 +7,10 @@ User = get_user_model()
 
 class ProfilePermissionTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="owner", password="test-password-2026")
-        self.other_user = User.objects.create_user(username="other")
+        self.user = User.objects.create_user(
+            username="owner", email="owner@example.com", password="test-password-2026"
+        )
+        self.other_user = User.objects.create_user(username="other", email="other@example.com")
 
     def test_anonymous_user_cannot_view_profile(self):
         response = self.client.get(reverse("profiles:detail"))
@@ -43,4 +45,3 @@ class ProfilePermissionTests(TestCase):
         self.other_user.candidate_profile.refresh_from_db()
         self.assertEqual(self.user.candidate_profile.full_name, "Profile Owner")
         self.assertEqual(self.other_user.candidate_profile.full_name, "")
-

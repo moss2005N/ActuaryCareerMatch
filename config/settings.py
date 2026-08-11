@@ -129,3 +129,25 @@ LOGOUT_REDIRECT_URL = 'core:home'
 LOGIN_URL = 'accounts:login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = ["accounts.backends.UsernameOrEmailBackend"]
+
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND") or "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL") or "Actuary Career Match <noreply@localhost>"
+EMAIL_HOST = os.getenv("EMAIL_HOST") or "localhost"
+EMAIL_PORT = int(os.getenv("EMAIL_PORT") or "25")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER") or ""
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") or ""
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
+EMAIL_VERIFICATION_TIMEOUT_SECONDS = int(os.getenv("EMAIL_VERIFICATION_TIMEOUT_SECONDS") or "86400")
+
+PHONE_VERIFICATION_BACKEND = os.getenv("PHONE_VERIFICATION_BACKEND") or "console"
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID") or ""
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN") or ""
+TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID") or ""
+
+OTP_EXPIRY_SECONDS = int(os.getenv("OTP_EXPIRY_SECONDS") or "600")
+OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("OTP_RESEND_COOLDOWN_SECONDS") or "60")
+OTP_MAX_SENDS_PER_PHONE_PER_HOUR = 5
+OTP_MAX_ATTEMPTS_PER_CHALLENGE = 5
+OTP_MAX_ATTEMPTS_PER_ACCOUNT_IP_PER_HOUR = 10

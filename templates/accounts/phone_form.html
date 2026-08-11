@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Phone Security | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:42rem"><div class="card-body p-4">
+<h1 class="h3">Add or change your phone</h1>
+<p class="text-secondary">Your number must be verified before full sign in is allowed.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Send verification code</button></form>
+</div></div></div>
+{% endblock %}
