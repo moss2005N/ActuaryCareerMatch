@@ -50,3 +50,28 @@ python manage.py check
 python manage.py makemigrations --check
 python manage.py test
 ```
+
+## Phase 3 job sources
+
+External job sources are isolated behind `jobs.sources.BaseJobSourceAdapter`.
+Concrete adapters must be written for one explicitly authorized official API or
+public structured feed. They must identify the application, use timeouts and
+source-specific rate limits, and stop when terms, robots directives, access
+controls, authentication, CAPTCHA, or anti-bot restrictions prohibit collection.
+There is intentionally no generic crawler or restriction-bypass mechanism.
+
+`JobSource` controls enablement and records synchronization status. `ImportRun`
+records counts and errors for each attempt. Disabled sources are recorded as
+skipped without calling their adapters. Source/external-ID uniqueness prevents
+repeat inserts; records lacking a reliable ID use a conservative company, title,
+location, and source-URL identity.
+
+For local UI data only, first seed Phase 2 reference tables and then clearly
+fictional jobs:
+
+```bash
+python manage.py seed_reference_data
+python manage.py seed_development_jobs
+```
+
+The development job command refuses to run unless `DEBUG=True`.

@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'core',
     'accounts.apps.AccountsConfig',
     'profiles',
+    'jobs.apps.JobsConfig',
 ]
 
 MIDDLEWARE = [
