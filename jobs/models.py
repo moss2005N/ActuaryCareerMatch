@@ -53,10 +53,25 @@ class JobSource(models.Model):
         CAREER_PAGE = "career_page", "Permitted career page"
         OTHER_API = "other_api", "Other authorized API"
 
+    class ReviewStatus(models.TextChoices):
+        PENDING = "pending", "Pending review"
+        ALLOWED = "allowed", "Reviewed and allowed"
+        DISALLOWED = "disallowed", "Disallowed"
+        NOT_APPLICABLE = "not_applicable", "Not applicable"
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="job_sources", blank=True, null=True)
     name = models.CharField(max_length=100, unique=True)
     source_type = models.CharField(max_length=30, choices=SourceType.choices)
     base_url = models.URLField(blank=True)
+    board_identifier = models.CharField(max_length=200, blank=True)
+    field_mapping = models.JSONField(default=dict, blank=True)
     enabled = models.BooleanField(default=False)
+    request_timeout_seconds = models.PositiveSmallIntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(60)])
+    minimum_request_interval_seconds = models.DecimalField(max_digits=5, decimal_places=2, default=1, validators=[MinValueValidator(0)])
+    missing_syncs_before_deactivation = models.PositiveSmallIntegerField(default=3, validators=[MinValueValidator(2)])
+    robots_policy_status = models.CharField(max_length=20, choices=ReviewStatus.choices, default=ReviewStatus.PENDING)
+    terms_review_status = models.CharField(max_length=20, choices=ReviewStatus.choices, default=ReviewStatus.PENDING)
+    notes = models.TextField(blank=True)
     last_sync_at = models.DateTimeField(blank=True, null=True)
     last_success_at = models.DateTimeField(blank=True, null=True)
     last_error = models.TextField(blank=True)
@@ -97,6 +112,7 @@ class JobPosting(models.Model):
         YEAR = "year", "Per year"
 
     class DegreeRequirement(models.TextChoices):
+        UNSPECIFIED = "unspecified", "Not specified"
         NONE = "none", "No degree requirement"
         BACHELOR = "bachelor", "Bachelor's degree"
         MASTER = "master", "Master's degree"
@@ -116,9 +132,9 @@ class JobPosting(models.Model):
     country = models.CharField(max_length=100, blank=True)
     state_or_region = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
-    employment_type = models.CharField(max_length=20, choices=EmploymentType.choices)
-    work_arrangement = models.CharField(max_length=20, choices=WorkArrangement.choices)
-    experience_level = models.CharField(max_length=20, choices=ExperienceLevel.choices)
+    employment_type = models.CharField(max_length=20, choices=EmploymentType.choices, blank=True)
+    work_arrangement = models.CharField(max_length=20, choices=WorkArrangement.choices, blank=True)
+    experience_level = models.CharField(max_length=20, choices=ExperienceLevel.choices, blank=True)
     salary_min = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, validators=[MinValueValidator(0)])
     salary_max = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, validators=[MinValueValidator(0)])
     salary_currency = models.CharField(max_length=3, default="USD")
@@ -130,17 +146,21 @@ class JobPosting(models.Model):
     posted_at = models.DateTimeField(blank=True, null=True)
     expires_at = models.DateTimeField(blank=True, null=True)
     active = models.BooleanField(default=True)
+    raw_source_text = models.TextField(blank=True)
+    first_seen_at = models.DateTimeField(blank=True, null=True)
+    last_seen_at = models.DateTimeField(blank=True, null=True)
+    consecutive_missing_syncs = models.PositiveSmallIntegerField(default=0)
     practice_areas = models.ManyToManyField(PracticeArea, blank=True, related_name="job_postings")
     required_exams = models.ManyToManyField(ActuarialExam, blank=True, related_name="jobs_requiring_exam")
     preferred_exams = models.ManyToManyField(ActuarialExam, blank=True, related_name="jobs_preferring_exam")
     required_skills = models.ManyToManyField(Skill, blank=True, related_name="jobs_requiring_skill")
     preferred_skills = models.ManyToManyField(Skill, blank=True, related_name="jobs_preferring_skill")
     minimum_gpa = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(4)])
-    degree_requirement = models.CharField(max_length=20, choices=DegreeRequirement.choices, default=DegreeRequirement.NONE)
+    degree_requirement = models.CharField(max_length=20, choices=DegreeRequirement.choices, default=DegreeRequirement.UNSPECIFIED)
     major_requirements = models.TextField(blank=True, help_text="One acceptable major per line.")
     work_authorization_requirement = models.CharField(max_length=30, choices=Authorization.choices, default=Authorization.ANY)
-    sponsorship_available = models.BooleanField(default=False)
-    years_experience = models.DecimalField(max_digits=4, decimal_places=1, default=0, validators=[MinValueValidator(0)])
+    sponsorship_available = models.BooleanField(blank=True, null=True, default=None)
+    years_experience = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True, default=None, validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -186,6 +206,7 @@ class ImportRun(models.Model):
     class Status(models.TextChoices):
         RUNNING = "running", "Running"
         SUCCESS = "success", "Success"
+        PARTIAL = "partial", "Partial"
         FAILED = "failed", "Failed"
         SKIPPED = "skipped", "Skipped"
 
@@ -193,10 +214,25 @@ class ImportRun(models.Model):
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.RUNNING)
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(blank=True, null=True)
-    records_seen = models.PositiveIntegerField(default=0)
-    records_created = models.PositiveIntegerField(default=0)
-    records_updated = models.PositiveIntegerField(default=0)
-    error_message = models.TextField(blank=True)
+    jobs_seen = models.PositiveIntegerField(default=0)
+    jobs_created = models.PositiveIntegerField(default=0)
+    jobs_updated = models.PositiveIntegerField(default=0)
+    jobs_skipped = models.PositiveIntegerField(default=0)
+    jobs_deactivated = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
+    error_summary = models.TextField(blank=True)
+
+    @property
+    def records_seen(self):
+        return self.jobs_seen
+
+    @property
+    def records_created(self):
+        return self.jobs_created
+
+    @property
+    def records_updated(self):
+        return self.jobs_updated
 
     class Meta:
         ordering = ("-started_at",)

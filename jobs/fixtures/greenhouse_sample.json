@@ -1,0 +1,21 @@
+{
+  "fixture_notice": "Local test fixture only. This is not a live hiring claim.",
+  "jobs": [
+    {
+      "id": 900001,
+      "title": "Actuarial Analyst — Fixture",
+      "updated_at": "2026-08-01T14:30:00Z",
+      "absolute_url": "https://example.test/greenhouse/jobs/900001",
+      "location": {"name": "Hartford, Connecticut"},
+      "content": "<p>Fixture only. Bachelor's degree required. Minimum GPA of 3.0. Exam P preferred. Excel and Python. Hybrid position. No visa sponsorship.</p>"
+    },
+    {
+      "id": 900002,
+      "title": "Software Engineer — Fixture",
+      "updated_at": "2026-08-01T14:30:00Z",
+      "absolute_url": "https://example.test/greenhouse/jobs/900002",
+      "location": {"name": "Remote"},
+      "content": "Fixture unrelated role used to test conservative relevance filtering."
+    }
+  ]
+}

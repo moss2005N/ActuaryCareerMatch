@@ -1,0 +1,23 @@
+[
+  {
+    "id": "fixture-lever-001",
+    "text": "Actuarial Intern — Fixture",
+    "createdAt": 1785600000000,
+    "hostedUrl": "https://example.test/lever/jobs/fixture-lever-001",
+    "applyUrl": "https://example.test/lever/jobs/fixture-lever-001/apply",
+    "categories": {"location": "Chicago, Illinois", "commitment": "Internship"},
+    "descriptionPlain": "Fixture only. Pursuing a bachelor's degree. Excel and SQL preferred. Hybrid work arrangement.",
+    "additionalPlain": "Sponsorship is available.",
+    "lists": []
+  },
+  {
+    "id": "fixture-lever-002",
+    "text": "Marketing Manager — Fixture",
+    "createdAt": 1785600000000,
+    "hostedUrl": "https://example.test/lever/jobs/fixture-lever-002",
+    "applyUrl": "https://example.test/lever/jobs/fixture-lever-002/apply",
+    "categories": {"location": "New York, New York", "commitment": "Full-time"},
+    "descriptionPlain": "Fixture unrelated role.",
+    "lists": []
+  }
+]

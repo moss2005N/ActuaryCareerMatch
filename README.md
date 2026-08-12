@@ -75,3 +75,36 @@ python manage.py seed_development_jobs
 ```
 
 The development job command refuses to run unless `DEBUG=True`.
+
+### Configuring an authorized real job source
+
+Create the company first, then add a `JobSource` in Django admin. Every source is
+disabled by default. Review the applicable terms and robots policy and record both
+statuses as **Reviewed and allowed** (or **Not applicable** only when genuinely
+inapplicable) before enabling it.
+
+- Greenhouse: choose `Greenhouse public feed` and enter the public board token in
+  `board_identifier`. The adapter calls only the public Greenhouse Job Board API.
+- Lever: choose `Lever public feed` and enter the public site identifier in
+  `board_identifier`. The adapter calls only the public Lever postings endpoint.
+- Authorized JSON: choose `Authorized ATS/API` or `Other authorized API`, provide
+  the documented HTTPS feed URL, and configure `field_mapping` with dotted paths.
+  Required mappings are `external_job_id`, `title`, `description`, and
+  `source_url`; `list_path` is optional.
+
+Set conservative timeout, request interval, and missing-sync threshold values.
+Then run `python manage.py sync_job_source SOURCE_ID --dry-run --verbose` before a
+real sync. No source is contacted while disabled or while either policy review is
+pending/disallowed.
+
+Local Greenhouse and Lever fixtures make no network request:
+
+```bash
+python manage.py seed_fixture_job_sources
+# Use the two source IDs printed above:
+python manage.py sync_job_source GREENHOUSE_SOURCE_ID --fixture jobs/fixtures/greenhouse_sample.json --verbose
+python manage.py sync_job_source LEVER_SOURCE_ID --fixture jobs/fixtures/lever_sample.json --verbose
+```
+
+The source type must match the fixture. Add `--dry-run` to validate without any
+database writes. These fixtures are synthetic and make no live hiring claims.

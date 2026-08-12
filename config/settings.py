@@ -153,3 +153,16 @@ OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("OTP_RESEND_COOLDOWN_SECONDS") or "6
 OTP_MAX_SENDS_PER_PHONE_PER_HOUR = 5
 OTP_MAX_ATTEMPTS_PER_CHALLENGE = 5
 OTP_MAX_ATTEMPTS_PER_ACCOUNT_IP_PER_HOUR = 10
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {
+        "jobs.imports": {
+            "handlers": ["console"],
+            "level": os.getenv("JOB_IMPORT_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        }
+    },
+}

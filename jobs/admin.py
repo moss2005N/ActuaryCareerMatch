@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 
 from .models import Company, ImportRun, JobPosting, JobSource
+from .services import sync_source
 
 
 @admin.register(Company)
@@ -13,12 +14,12 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(JobPosting)
 class JobPostingAdmin(admin.ModelAdmin):
-    list_display = ("title", "company", "location", "employment_type", "work_arrangement", "experience_level", "active", "expires_at")
+    list_display = ("title", "company", "source", "location", "employment_type", "work_arrangement", "active", "last_seen_at", "expires_at")
     search_fields = ("title", "company__name", "description", "location", "external_job_id")
     list_filter = ("active", "employment_type", "work_arrangement", "experience_level", "practice_areas", "source")
     autocomplete_fields = ("company", "source")
     filter_horizontal = ("practice_areas", "required_exams", "preferred_exams", "required_skills", "preferred_skills")
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("first_seen_at", "last_seen_at", "consecutive_missing_syncs", "created_at", "updated_at")
     actions = ("deactivate_selected", "deactivate_expired")
     fieldsets = (
         ("Job", {"fields": ("company", "title", "description", "active")}),
@@ -27,7 +28,7 @@ class JobPostingAdmin(admin.ModelAdmin):
         ("Actuarial requirements", {"fields": ("practice_areas", "required_exams", "preferred_exams", "required_skills", "preferred_skills")}),
         ("Candidate requirements", {"fields": ("minimum_gpa", "degree_requirement", "major_requirements", "work_authorization_requirement", "sponsorship_available", "years_experience")}),
         ("Application and source", {"fields": ("application_url", "source", "source_name", "source_url", "external_job_id")}),
-        ("Lifecycle", {"fields": ("posted_at", "expires_at", "created_at", "updated_at")}),
+        ("Lifecycle", {"fields": ("posted_at", "expires_at", "first_seen_at", "last_seen_at", "consecutive_missing_syncs", "created_at", "updated_at")}),
     )
 
     @admin.action(description="Deactivate selected jobs")
@@ -41,16 +42,35 @@ class JobPostingAdmin(admin.ModelAdmin):
 
 @admin.register(JobSource)
 class JobSourceAdmin(admin.ModelAdmin):
-    list_display = ("name", "source_type", "enabled", "last_sync_at", "last_success_at")
-    search_fields = ("name", "base_url", "last_error")
-    list_filter = ("source_type", "enabled")
+    list_display = ("name", "company", "source_type", "enabled", "robots_policy_status", "terms_review_status", "last_sync_at", "last_success_at", "last_error_summary", "imported_job_count")
+    search_fields = ("name", "company__name", "base_url", "board_identifier", "last_error")
+    list_filter = ("source_type", "enabled", "robots_policy_status", "terms_review_status")
+    autocomplete_fields = ("company",)
     readonly_fields = ("last_sync_at", "last_success_at", "last_error", "created_at", "updated_at")
+    actions = ("sync_selected_sources", "disable_selected_sources")
+
+    @admin.display(description="Last error")
+    def last_error_summary(self, obj):
+        return obj.last_error or "—"
+
+    @admin.display(description="Imported jobs")
+    def imported_job_count(self, obj):
+        return obj.jobs.count()
+
+    @admin.action(description="Synchronize selected approved sources")
+    def sync_selected_sources(self, request, queryset):
+        for source in queryset.select_related("company"):
+            sync_source(source)
+
+    @admin.action(description="Disable selected sources")
+    def disable_selected_sources(self, request, queryset):
+        queryset.update(enabled=False)
 
 
 @admin.register(ImportRun)
 class ImportRunAdmin(admin.ModelAdmin):
-    list_display = ("source", "status", "started_at", "finished_at", "records_seen", "records_created", "records_updated")
-    search_fields = ("source__name", "error_message")
+    list_display = ("source", "status", "started_at", "finished_at", "jobs_seen", "jobs_created", "jobs_updated", "jobs_skipped", "jobs_deactivated", "error_count")
+    search_fields = ("source__name", "error_summary")
     list_filter = ("status", "source")
     readonly_fields = tuple(field.name for field in ImportRun._meta.fields)
 
@@ -59,4 +79,3 @@ class ImportRunAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
-

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlparse
@@ -9,7 +9,7 @@ from django.core.validators import URLValidator
 
 
 class ImportPayloadError(ValueError):
-    """Raised when an authorized source returns unusable external data."""
+    """An authorized source returned a malformed or unusable record."""
 
 
 @dataclass(frozen=True)
@@ -20,28 +20,34 @@ class ImportedJob:
     source_url: str
     application_url: str = ""
     location: str = ""
+    city: str = ""
+    state_or_region: str = ""
+    country: str = ""
+    employment_type: str = ""
+    work_arrangement: str = ""
+    experience_level: str = ""
     posted_at: datetime | None = None
+    expires_at: datetime | None = None
     salary_min: Decimal | None = None
     salary_max: Decimal | None = None
+    salary_currency: str = ""
+    salary_period: str = ""
+    raw_source_text: str = ""
+    explicitly_closed: bool = False
+    metadata: dict = field(default_factory=dict)
 
 
 class BaseJobSourceAdapter(ABC):
-    """Interface for one explicitly authorized job source.
+    """One adapter for one explicitly reviewed public or authorized source."""
 
-    Concrete adapters must use official APIs or permitted public structured feeds,
-    identify the application, enforce timeouts and source-specific rate limits, and
-    stop on access restrictions. This interface intentionally provides no crawler.
-    """
-
-    request_timeout_seconds = 10
-    minimum_request_interval_seconds = 1
-
-    def __init__(self, source):
+    def __init__(self, source, http_client=None, fixture_data=None):
         self.source = source
+        self.http_client = http_client
+        self.fixture_data = fixture_data
 
     @abstractmethod
-    def fetch(self):
-        """Return an iterable of raw records from an authorized source."""
+    def fetch(self, limit=None):
+        """Return raw source records. Never bypass access restrictions."""
 
     @abstractmethod
     def normalize(self, raw_record) -> ImportedJob:
@@ -71,4 +77,3 @@ class BaseJobSourceAdapter(ABC):
         if result < 0:
             raise ImportPayloadError("External numeric values cannot be negative.")
         return result
-

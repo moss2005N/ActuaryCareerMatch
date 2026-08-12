@@ -115,7 +115,7 @@ class JobSystemTests(TestCase):
             self.make_job(source=None, external_job_id="", source_url="https://example.com/jobs/one")
 
     def test_import_source_tracking(self):
-        run = ImportRun.objects.create(source=self.source, status="success", records_seen=3, records_created=2)
+        run = ImportRun.objects.create(source=self.source, status="success", jobs_seen=3, jobs_created=2)
         self.assertEqual(self.source.import_runs.get(), run)
         self.assertEqual(run.records_created, 2)
 
@@ -133,13 +133,14 @@ class JobSystemTests(TestCase):
 
 
 class FakeAdapter(BaseJobSourceAdapter):
-    def fetch(self):
-        return [{"id": "EXT-1"}]
+    def fetch(self, limit=None):
+        records = [{"id": "EXT-1"}]
+        return records[:limit] if limit else records
 
     def normalize(self, raw_record):
         return ImportedJob(
             external_job_id=raw_record["id"],
-            title="Imported Analyst",
+            title="Imported Actuarial Analyst",
             description="Authorized structured feed record",
             source_url="https://jobs.example.test/EXT-1",
         )
@@ -153,7 +154,10 @@ class MalformedAdapter(FakeAdapter):
 class ImportAndSeedTests(TestCase):
     def setUp(self):
         self.company = Company.objects.create(name="Import Company")
-        self.source = JobSource.objects.create(name="Test Feed", source_type="ats_api", enabled=True)
+        self.source = JobSource.objects.create(
+            name="Test Feed", source_type="ats_api", enabled=True, company=self.company,
+            robots_policy_status="allowed", terms_review_status="allowed",
+        )
 
     def test_adapter_import_updates_instead_of_duplicating(self):
         defaults = {"employment_type": "full_time", "work_arrangement": "remote", "experience_level": "entry"}
@@ -178,11 +182,11 @@ class ImportAndSeedTests(TestCase):
 
     def test_malformed_import_is_tracked(self):
         defaults = {"employment_type": "full_time", "work_arrangement": "remote", "experience_level": "entry"}
-        with self.assertRaises(ImportPayloadError):
-            import_from_adapter(MalformedAdapter(self.source), self.company, defaults)
+        result = import_from_adapter(MalformedAdapter(self.source), self.company, defaults)
         run = ImportRun.objects.get()
         self.source.refresh_from_db()
-        self.assertEqual(run.status, ImportRun.Status.FAILED)
+        self.assertEqual(result.status, ImportRun.Status.PARTIAL)
+        self.assertEqual(run.status, ImportRun.Status.PARTIAL)
         self.assertIn("Malformed external record", self.source.last_error)
 
     def test_job_list_is_paginated(self):
