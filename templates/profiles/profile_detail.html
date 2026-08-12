@@ -1,32 +1,24 @@
 {% extends "base.html" %}
-
-{% block title %}Your Profile | Actuary Career Match{% endblock %}
-
+{% block title %}Your Career Profile | Actuary Career Match{% endblock %}
 {% block content %}
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
-            <h1 class="h2 mb-1">{{ profile.full_name|default:user.username }}</h1>
-            <p class="text-secondary mb-0">Your private candidate profile</p>
-        </div>
-        <a class="btn btn-primary" href="{% url 'profiles:edit' %}">Edit profile</a>
-    </div>
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-            <dl class="row mb-0">
-                <dt class="col-sm-4">Location</dt>
-                <dd class="col-sm-8">{{ profile.city|default:"—" }}{% if profile.state %}, {{ profile.state }}{% endif %}{% if profile.country %}, {{ profile.country }}{% endif %}</dd>
-                <dt class="col-sm-4">University</dt>
-                <dd class="col-sm-8">{{ profile.university|default:"—" }}</dd>
-                <dt class="col-sm-4">Major</dt>
-                <dd class="col-sm-8">{{ profile.major|default:"—" }}</dd>
-                <dt class="col-sm-4">Employment preference</dt>
-                <dd class="col-sm-8">{{ profile.get_preferred_employment_type_display|default:"—" }}</dd>
-                <dt class="col-sm-4">Work arrangement</dt>
-                <dd class="col-sm-8">{{ profile.get_preferred_work_arrangement_display|default:"—" }}</dd>
-            </dl>
-        </div>
-    </div>
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div><h1 class="h2 mb-1">{{ profile.full_name|default:user.username }}</h1><p class="text-secondary mb-0">Your private actuarial career profile</p></div>
+    <a class="btn btn-primary" href="{% url 'profiles:edit' %}">Edit personal details</a>
+  </div>
+  <div class="card border-0 shadow-sm mb-4"><div class="card-body p-4">
+    <div class="d-flex justify-content-between"><strong>Profile completeness</strong><span>{{ completeness.percentage }}%</span></div>
+    <div class="progress mt-2" role="progressbar" aria-label="Profile completeness" aria-valuenow="{{ completeness.percentage }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ completeness.percentage }}%"></div></div>
+    {% if completeness.missing_sections %}<small class="text-secondary d-block mt-2">Next: {{ completeness.missing_sections|join:", " }}</small>{% endif %}
+  </div></div>
+  <div class="row g-4">
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Personal information</h2><a href="{% url 'profiles:edit' %}">Edit</a></div><p class="mb-1">{{ profile.city|default:"—" }}{% if profile.state_or_region %}, {{ profile.state_or_region }}{% endif %}{% if profile.country %}, {{ profile.country }}{% endif %}</p><p class="text-secondary mb-0">{{ profile.university|default:"Education not added" }} · {{ profile.major|default:"Major not added" }}</p></div></div></div>
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Education</h2><a href="{% url 'profiles:education' %}">Manage</a></div>{% for item in education %}<p class="mb-1"><strong>{{ item.institution }}</strong> — {{ item.degree }}</p>{% empty %}<p class="text-secondary mb-0">No education history yet.</p>{% endfor %}</div></div></div>
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Actuarial exams</h2><a href="{% url 'profiles:exams' %}">Manage</a></div>{% for item in exams %}<span class="badge text-bg-light border me-1 mb-1">{{ item.exam.code }} · {{ item.get_status_display }}</span>{% empty %}<p class="text-secondary mb-0">No exams added.</p>{% endfor %}</div></div></div>
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Technical skills</h2><a href="{% url 'profiles:skills' %}">Manage</a></div>{% for item in skills %}<span class="badge text-bg-primary me-1 mb-1">{{ item.skill.name }} · {{ item.get_proficiency_level_display }}</span>{% empty %}<p class="text-secondary mb-0">No skills added.</p>{% endfor %}</div></div></div>
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Experience</h2><a href="{% url 'profiles:experience' %}">Manage</a></div>{% for item in experience %}<p class="mb-1"><strong>{{ item.job_title }}</strong> at {{ item.company }}</p>{% empty %}<p class="text-secondary mb-0">No work experience added.</p>{% endfor %}</div></div></div>
+    <div class="col-lg-6"><div class="card h-100 border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Resume</h2><a href="{% url 'profiles:resume' %}">Manage</a></div><p class="mb-0">{% if profile.resume %}{{ profile.resume_filename }}{% else %}<span class="text-secondary">No resume uploaded.</span>{% endif %}</p></div></div></div>
+    <div class="col-12"><div class="card border-0 shadow-sm"><div class="card-body p-4"><div class="d-flex justify-content-between"><h2 class="h5">Career preferences</h2><a href="{% url 'profiles:edit' %}">Edit</a></div><p class="mb-2">{{ profile.get_preferred_employment_type_display|default:"Employment type not selected" }} · {{ profile.get_preferred_work_arrangement_display|default:"Work arrangement not selected" }} · {{ profile.get_target_job_level_display|default:"Target level not selected" }}</p>{% for area in profile.preferred_practice_areas.all %}<span class="badge text-bg-light border me-1">{{ area.name }}</span>{% empty %}<span class="text-secondary">No practice areas selected.</span>{% endfor %}</div></div></div>
+  </div>
 </div>
 {% endblock %}
-

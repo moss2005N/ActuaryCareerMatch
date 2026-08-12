@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}{{ title }} | Actuary Career Match{% endblock %}
+{% block content %}<div class="container py-5"><div class="card border-0 shadow-sm mx-auto" style="max-width:46rem"><div class="card-body p-4"><h1 class="h3">{{ title }}</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary">Save</button> <a class="btn btn-outline-secondary" href="{% url 'profiles:detail' %}">Cancel</a></form></div></div></div>{% endblock %}
