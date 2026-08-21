@@ -5,6 +5,8 @@ from .models import (
     CandidateProfile,
     Education,
     PracticeArea,
+    ResumeAnalysis,
+    ResumeSuggestion,
     Skill,
     UserExam,
     UserSkill,
@@ -68,3 +70,30 @@ class PracticeAreaAdmin(admin.ModelAdmin):
     list_display = ("name", "active", "display_order")
     search_fields = ("name",)
     list_filter = ("active",)
+
+
+@admin.register(ResumeAnalysis)
+class ResumeAnalysisAdmin(admin.ModelAdmin):
+    list_display = ("user", "status", "provider", "provider_model", "created_at", "updated_at", "has_error")
+    list_filter = ("status", "provider", "created_at")
+    search_fields = ("user__username", "user__email")
+    readonly_fields = tuple(field.name for field in ResumeAnalysis._meta.fields)
+    exclude = ("extracted_data", "suggestions", "feedback")
+
+    @admin.display(boolean=True, description="Error")
+    def has_error(self, obj):
+        return bool(obj.error_message)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(ResumeSuggestion)
+class ResumeSuggestionAdmin(admin.ModelAdmin):
+    list_display = ("analysis", "kind", "status", "confidence", "reviewed_at")
+    list_filter = ("kind", "status", "confidence")
+    readonly_fields = tuple(field.name for field in ResumeSuggestion._meta.fields)
+    exclude = ("payload", "source_snippet")
+
+    def has_add_permission(self, request):
+        return False

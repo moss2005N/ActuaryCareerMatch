@@ -12,7 +12,9 @@ from .forms import (
     UserSkillForm,
     WorkExperienceForm,
 )
-from .models import Education, UserExam, UserSkill, WorkExperience
+from .models import Education, ResumeSuggestion, UserExam, UserSkill, WorkExperience
+from .resume_analysis.base import ResumeAnalysisError
+from .resume_analysis.service import analyze_user_resume, apply_suggestion, ignore_suggestion, resume_identifier
 from .services import calculate_profile_completeness
 
 
@@ -133,7 +135,50 @@ def resume(request):
             record.resume.storage.delete(old_name)
         messages.success(request, "Resume uploaded securely.")
         return redirect("profiles:resume")
-    return render(request, "profiles/resume.html", {"form": form, "profile": profile})
+    analysis = None
+    if profile.resume:
+        current_identifier = resume_identifier(profile)
+        analysis = request.user.resume_analyses.filter(resume_identifier=current_identifier).prefetch_related("review_items").first()
+    return render(request, "profiles/resume.html", {"form": form, "profile": profile, "analysis": analysis})
+
+
+@login_required
+@require_POST
+def resume_analyze(request):
+    try:
+        analysis = analyze_user_resume(request.user)
+    except ResumeAnalysisError as exc:
+        messages.warning(request, str(exc))
+        return redirect("profiles:resume")
+    if analysis.status == analysis.Status.COMPLETED:
+        messages.success(request, "Resume analysis completed. Review suggestions before accepting changes.")
+    else:
+        messages.warning(request, analysis.error_message or "Resume analysis is unavailable.")
+    return redirect("profiles:resume")
+
+
+@login_required
+@require_POST
+def resume_suggestion_accept(request, pk):
+    suggestion = get_object_or_404(ResumeSuggestion.objects.select_related("analysis"), pk=pk, analysis__user=request.user)
+    try:
+        apply_suggestion(request.user, suggestion)
+        messages.success(request, "Suggestion accepted and applied to your profile.")
+    except ResumeAnalysisError as exc:
+        messages.warning(request, str(exc))
+    return redirect("profiles:resume")
+
+
+@login_required
+@require_POST
+def resume_suggestion_ignore(request, pk):
+    suggestion = get_object_or_404(ResumeSuggestion.objects.select_related("analysis"), pk=pk, analysis__user=request.user)
+    try:
+        ignore_suggestion(request.user, suggestion)
+        messages.info(request, "Suggestion ignored. No profile data was changed.")
+    except ResumeAnalysisError as exc:
+        messages.warning(request, str(exc))
+    return redirect("profiles:resume")
 
 
 @login_required

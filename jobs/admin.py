@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import Company, ImportRun, JobMatch, JobPosting, JobSource
+from .models import Company, ImportRun, JobMatch, JobMatchExplanation, JobPosting, JobSource
 from .services import sync_source
 
 
@@ -106,6 +106,17 @@ class JobMatchAdmin(admin.ModelAdmin):
     @admin.display(description="Company", ordering="job__company__name")
     def company(self, obj):
         return obj.job.company
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(JobMatchExplanation)
+class JobMatchExplanationAdmin(admin.ModelAdmin):
+    list_display = ("match", "provider", "provider_model", "updated_at")
+    list_filter = ("provider", "updated_at")
+    search_fields = ("match__user__username", "match__job__title")
+    readonly_fields = tuple(field.name for field in JobMatchExplanation._meta.fields)
 
     def has_add_permission(self, request):
         return False

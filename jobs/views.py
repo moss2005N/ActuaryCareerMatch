@@ -1,10 +1,16 @@
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 
 from .forms import JobFilterForm
 from .models import JobPosting
 from .matching import get_or_recalculate_match, matching_queryset, profile_fingerprint, profile_is_match_ready
+from .explanations import generate_explanation, get_cached_explanation
+from profiles.resume_analysis.base import ResumeAnalysisError
 
 
 class JobListView(ListView):
@@ -70,6 +76,7 @@ class JobDetailView(DetailView):
         if self.request.user.is_authenticated:
             context["candidate_match"] = get_or_recalculate_match(self.request.user, self.object)
             context["profile_match_ready"] = profile_is_match_ready(self.request.user)
+            context["enhanced_explanation"] = get_cached_explanation(self.request.user, context["candidate_match"])
         return context
 
 
@@ -88,3 +95,16 @@ class RecommendedJobsView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["profile_match_ready"] = profile_is_match_ready(self.request.user)
         return context
+
+
+@login_required
+@require_POST
+def refresh_match_explanation(request, pk):
+    job = get_object_or_404(matching_queryset(), pk=pk)
+    match = get_or_recalculate_match(request.user, job)
+    try:
+        generate_explanation(request.user, match, force=True)
+        messages.success(request, "Enhanced match explanation generated.")
+    except ResumeAnalysisError as exc:
+        messages.warning(request, f"Enhanced explanation unavailable: {exc} Deterministic strengths and gaps remain available.")
+    return redirect("jobs:detail", pk=pk)

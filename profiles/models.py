@@ -267,3 +267,61 @@ class WorkExperience(models.Model):
 
     def __str__(self):
         return f"{self.job_title} at {self.company}"
+
+
+class ResumeAnalysis(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        COMPLETED = "completed", "Completed"
+        FAILED = "failed", "Failed"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="resume_analyses")
+    resume_identifier = models.CharField(max_length=64)
+    provider = models.CharField(max_length=50)
+    provider_model = models.CharField(max_length=100, blank=True)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    extracted_data = models.JSONField(default=dict, blank=True)
+    suggestions = models.JSONField(default=list, blank=True)
+    feedback = models.JSONField(default=list, blank=True)
+    analysis_version = models.CharField(max_length=20, default="1")
+    error_message = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        indexes = [models.Index(fields=("user", "resume_identifier", "status"))]
+
+    def __str__(self):
+        return f"{self.user} — {self.get_status_display()} — {self.created_at:%Y-%m-%d}"
+
+
+class ResumeSuggestion(models.Model):
+    class Kind(models.TextChoices):
+        PROFILE = "profile", "Profile"
+        EXAM = "exam", "Actuarial exam"
+        SKILL = "skill", "Skill"
+        EDUCATION = "education", "Education"
+        EXPERIENCE = "experience", "Work experience"
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ACCEPTED = "accepted", "Accepted"
+        IGNORED = "ignored", "Ignored"
+
+    analysis = models.ForeignKey(ResumeAnalysis, on_delete=models.CASCADE, related_name="review_items")
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    fingerprint = models.CharField(max_length=64)
+    label = models.CharField(max_length=255)
+    payload = models.JSONField(default=dict)
+    confidence = models.CharField(max_length=12, choices=(("high", "High"), ("medium", "Medium"), ("low", "Low")))
+    source_snippet = models.CharField(max_length=500, blank=True)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ("pk",)
+        constraints = [models.UniqueConstraint(fields=("analysis", "fingerprint"), name="profiles_resume_suggestion_unique")]
+
+    def __str__(self):
+        return self.label

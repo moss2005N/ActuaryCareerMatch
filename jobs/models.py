@@ -270,3 +270,17 @@ class JobMatch(models.Model):
 
     def __str__(self):
         return f"{self.user} — {self.job} — {self.score}%"
+
+
+class JobMatchExplanation(models.Model):
+    match = models.OneToOneField(JobMatch, on_delete=models.CASCADE, related_name="enhanced_explanation")
+    provider = models.CharField(max_length=50)
+    provider_model = models.CharField(max_length=100, blank=True)
+    explanation_text = models.TextField()
+    cache_fingerprint = models.CharField(max_length=64)
+    explanation_version = models.CharField(max_length=20, default="1")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Explanation for {self.match}"
