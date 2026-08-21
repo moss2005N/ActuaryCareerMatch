@@ -1,8 +1,10 @@
 from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView
 
 from .forms import JobFilterForm
 from .models import JobPosting
+from .matching import get_or_recalculate_match, matching_queryset, profile_fingerprint, profile_is_match_ready
 
 
 class JobListView(ListView):
@@ -12,7 +14,7 @@ class JobListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = JobPosting.objects.visible().select_related("company", "source").prefetch_related("practice_areas")
+        queryset = matching_queryset()
         self.filter_form = JobFilterForm(self.request.GET)
         if not self.filter_form.is_valid():
             return queryset
@@ -46,6 +48,12 @@ class JobListView(ListView):
         query = self.request.GET.copy()
         query.pop("page", None)
         context["querystring"] = query.urlencode()
+        context["profile_match_ready"] = False
+        if self.request.user.is_authenticated:
+            context["profile_match_ready"] = profile_is_match_ready(self.request.user)
+            current_profile_hash = profile_fingerprint(self.request.user)
+            for job in context["jobs"]:
+                job.candidate_match = get_or_recalculate_match(self.request.user, job, profile_hash=current_profile_hash)
         return context
 
 
@@ -55,7 +63,28 @@ class JobDetailView(DetailView):
     context_object_name = "job"
 
     def get_queryset(self):
-        return JobPosting.objects.visible().select_related("company", "source").prefetch_related(
-            "practice_areas", "required_exams", "preferred_exams", "required_skills", "preferred_skills"
-        )
+        return matching_queryset()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["candidate_match"] = get_or_recalculate_match(self.request.user, self.object)
+            context["profile_match_ready"] = profile_is_match_ready(self.request.user)
+        return context
+
+
+class RecommendedJobsView(LoginRequiredMixin, ListView):
+    template_name = "jobs/recommended.html"
+    context_object_name = "recommendations"
+    login_url = "accounts:login"
+
+    def get_queryset(self):
+        jobs = matching_queryset().exclude(source__board_identifier="local-fixture").exclude(source__name="Development Seed Data")
+        current_profile_hash = profile_fingerprint(self.request.user)
+        matches = [get_or_recalculate_match(self.request.user, job, profile_hash=current_profile_hash) for job in jobs]
+        return sorted(matches, key=lambda item: (-item.score, item.job.title.lower()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["profile_match_ready"] = profile_is_match_ready(self.request.user)
+        return context

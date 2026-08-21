@@ -20,6 +20,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'jobs:list' %}">Jobs</a></li>
                     {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'jobs:recommended' %}">Recommended</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'profiles:detail' %}">Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'accounts:security' %}">Security</a></li>
                         <li class="nav-item">

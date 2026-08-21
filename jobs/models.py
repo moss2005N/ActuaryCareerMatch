@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -239,3 +240,33 @@ class ImportRun(models.Model):
 
     def __str__(self):
         return f"{self.source} — {self.get_status_display()} — {self.started_at:%Y-%m-%d %H:%M}"
+
+
+class JobMatch(models.Model):
+    class Eligibility(models.TextChoices):
+        ELIGIBLE = "eligible", "Eligible"
+        POSSIBLY_ELIGIBLE = "possibly_eligible", "Possibly eligible"
+        NOT_ELIGIBLE = "not_eligible", "Not eligible"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="job_matches")
+    job = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name="matches")
+    score = models.PositiveSmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    eligibility_status = models.CharField(max_length=24, choices=Eligibility.choices)
+    explanation_json = models.JSONField(default=dict)
+    profile_fingerprint = models.CharField(max_length=64)
+    job_fingerprint = models.CharField(max_length=64)
+    calculated_at = models.DateTimeField(auto_now=True)
+    profile_updated_at_snapshot = models.DateTimeField()
+    job_updated_at_snapshot = models.DateTimeField()
+
+    class Meta:
+        ordering = ("-score", "job__title")
+        constraints = [
+            models.UniqueConstraint(fields=("user", "job"), name="jobs_jobmatch_user_job_unique")
+        ]
+        indexes = [
+            models.Index(fields=("user", "eligibility_status", "score")),
+        ]
+
+    def __str__(self):
+        return f"{self.user} — {self.job} — {self.score}%"

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import Company, ImportRun, JobPosting, JobSource
+from .models import Company, ImportRun, JobMatch, JobPosting, JobSource
 from .services import sync_source
 
 
@@ -78,4 +78,34 @@ class ImportRunAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+
+class ScoreRangeFilter(admin.SimpleListFilter):
+    title = "score range"
+    parameter_name = "score_range"
+
+    def lookups(self, request, model_admin):
+        return (("high", "80–100"), ("medium", "50–79"), ("low", "0–49"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "high": return queryset.filter(score__gte=80)
+        if self.value() == "medium": return queryset.filter(score__gte=50, score__lt=80)
+        if self.value() == "low": return queryset.filter(score__lt=50)
+        return queryset
+
+
+@admin.register(JobMatch)
+class JobMatchAdmin(admin.ModelAdmin):
+    list_display = ("user", "job", "company", "score", "eligibility_status", "calculated_at")
+    list_filter = (ScoreRangeFilter, "eligibility_status", "job__company")
+    search_fields = ("user__username", "user__email", "job__title", "job__company__name")
+    readonly_fields = tuple(field.name for field in JobMatch._meta.fields)
+    list_select_related = ("user", "job", "job__company")
+
+    @admin.display(description="Company", ordering="job__company__name")
+    def company(self, obj):
+        return obj.job.company
+
+    def has_add_permission(self, request):
         return False
