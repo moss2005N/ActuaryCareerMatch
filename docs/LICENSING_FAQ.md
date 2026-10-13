@@ -5,6 +5,10 @@ controlling terms are in [`LICENSE`](../LICENSE). This FAQ explains the intended
 policy but does not amend the license or provide legal advice. If the FAQ and
 license conflict, the license controls.
 
+The custom draft has not received independent legal review. It must not be
+described as legally approved, legally valid, open source, or OSI-approved open
+source.
+
 Copyright © 2026 Dawei Niu. Commercial licensing requests may be sent to
 [actuarycareermatch@gmail.com](mailto:actuarycareermatch@gmail.com). Sending a
 request does not itself grant permission; commercial permission requires the
@@ -45,7 +49,8 @@ before the repository is made public or the terms are relied upon.
 - Non-commercial teaching, coursework, and educational projects.
 - Non-commercial academic research, subject to the funding and sponsor caveats
   below.
-- A personal portfolio demonstration that is neither offered as a service nor
+- A local personal portfolio demonstration, or screenshots and recordings of
+  it, when no running instance is made available to other people and it is not
   monetized.
 - Sharing the original code or modifications for non-commercial purposes when
   attribution, the license, source availability, and a notice of changes are
@@ -53,6 +58,10 @@ before the repository is made public or the terms are relied upon.
 
 ## What requires prior written permission?
 
+- Any public hosting or deployment of the Original Software or a Modified Work,
+  including a free, nonprofit, educational, research, portfolio, demonstration,
+  preview, or test instance. Lack of payment or revenue does not create hosting
+  permission.
 - Any deployment, internal use, evaluation, modification, integration, or
   operation by or for a for-profit business. A free proof of concept can still
   create commercial advantage.
@@ -99,9 +108,21 @@ permission before it runs, evaluates, modifies, deploys, or integrates the code.
 
 ### May I publish a fork?
 
-Yes, only for a non-commercial purpose and only if you retain the license and
-attribution, identify your changes and their date, and provide corresponding
-source code. You may not add terms that expand or restrict recipients' rights.
+You may publish and redistribute the fork's source code only for a
+non-commercial purpose and only if you retain the license and attribution,
+identify your changes and their date, and provide corresponding source code.
+You may not add terms that expand or restrict recipients' rights. This
+source-redistribution permission does not permit you to run the fork as a
+publicly accessible website, service, demo, preview, or test environment.
+
+### May I host a free public demo for a class, research project, or portfolio?
+
+No, not without prior written authorization. The draft treats making a running
+instance available to the public or external users as Public Hosting or
+Deployment even when it is free, has no advertising, and has an educational,
+research, portfolio, or other non-commercial purpose. Local private use remains
+permitted, and screenshots or recordings may be shared when they do not provide
+access to a running instance.
 
 ### Does this cover dependencies, data, names, or logos?
 
@@ -124,7 +145,7 @@ Before publication, a qualified lawyer should review at least:
    appropriate legal party and notice details for licensing agreements;
 2. whether the Commercial Use and Non-Commercial Purpose definitions match the
    owner's intended treatment of nonprofits, government, grants, tuition,
-   donations, portfolio hosting, and sponsored research;
+   donations, portfolio demonstrations, public hosting, and sponsored research;
 3. governing law, venue, local consumer-law limits, enforceability, termination,
    warranty, and liability language;
 4. whether an express patent grant or patent-retaliation clause is appropriate;
@@ -132,7 +153,10 @@ Before publication, a qualified lawyer should review at least:
 6. whether the direct downstream Contribution grant is effective in all relevant
    jurisdictions and whether future code contributions require assignments or a
    separate contributor agreement for commercial relicensing; and
-7. use of the project's name and any trademark policy.
+7. use of the project's name and any trademark policy; and
+8. whether the distinction between permitted source redistribution and
+   prohibited Public Hosting or Deployment is sufficiently definite and
+   enforceable in every relevant jurisdiction.
 
 Do not describe the project as “open source.” “Source-available under a custom
 non-commercial license” is the accurate description while these terms apply.

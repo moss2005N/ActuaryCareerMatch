@@ -12,6 +12,13 @@ modification, and sharing for defined personal-learning, non-commercial academic
 research, teaching, and non-commercial educational purposes, subject to
 attribution and license-retention conditions.
 
+The draft license does **not** permit public hosting or deployment of the
+Original Software or a Modified Work without prior written authorization, even
+when access is free and the activity is educational, research-oriented,
+portfolio-based, or otherwise non-commercial. Local, private non-commercial use
+and compliant source-code redistribution remain permitted. Publishing source in
+a repository is distinct from operating a publicly accessible instance.
+
 Commercial use—including internal business use, commercial deployment, paid
 services, consulting, and incorporation into a commercial product or service—
 requires the copyright holder's prior written permission. See the
@@ -19,7 +26,8 @@ requires the copyright holder's prior written permission. See the
 Commercial licensing requests may be sent to
 [actuarycareermatch@gmail.com](mailto:actuarycareermatch@gmail.com). The custom
 license remains a draft and requires legal review before the repository is made
-public or the terms are treated as final. No legal approval is claimed.
+public or the terms are treated as final. It has not received independent legal
+review, and no legal validity or approval is claimed.
 
 Downstream recipients receive rights in Dawei Niu's original code directly from
 Dawei Niu, so permitted redistribution is not sublicensing. Authors of
@@ -167,6 +175,11 @@ The source type must match the fixture. Add `--dry-run` to validate without any
 database writes. These fixtures are synthetic and make no live hiring claims.
 
 ## Production security configuration
+
+This technical configuration guidance does not grant permission to host or
+deploy the Software. Public hosting or deployment requires the prior written
+authorization described in the draft license, including for free and
+non-commercial instances.
 
 Production requires all of the following to be explicit:
 

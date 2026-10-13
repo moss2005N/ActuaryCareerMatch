@@ -26,12 +26,23 @@ sufficient rights to license that Contribution under this License.
 adapts, translates, combines, or extends it, and may include one or more
 Contributions.
 
+"Public Hosting or Deployment" means operating, executing, or making a running
+instance or functionality of the Original Software or a Modified Work available
+to the general public or to external users over the Internet or another public
+network. It includes free, non-commercial, educational, research, portfolio,
+demonstration, preview, and test instances. It does not include distributing
+source code in a repository or archive without operating the Software for
+others, or running the Software locally and privately for a permitted
+Non-Commercial Purpose.
+
 "Non-Commercial Purpose" means use whose primary purpose is personal learning,
 non-commercial academic research, teaching, or a non-commercial educational
-project, and that is not undertaken for Commercial Use. A personal portfolio
-demonstration is a Non-Commercial Purpose only if the Original Software or a
-Modified Work is not offered to others as a hosted service and the demonstration
-is not sold, licensed, or used to generate revenue or commercial advantage.
+project, and that is not undertaken for Commercial Use or Public Hosting or
+Deployment. A personal portfolio demonstration is a Non-Commercial Purpose only
+if it consists of local use, screenshots, or recordings and does not make a
+running instance of the Original Software or a Modified Work available to
+others, and is not sold, licensed, or used to generate revenue or commercial
+advantage.
 
 "Commercial Use" means any exercise of rights in the Original Software or a
 Modified Work that is intended for, directed toward, or materially connected
@@ -63,8 +74,11 @@ libraries, fonts, images, and components governed by separate terms.
 Subject to every condition in this License, the Licensor grants each recipient
 a worldwide, non-exclusive, royalty-free license to view, download, reproduce,
 run, study, and modify the Original Software solely for a Non-Commercial
-Purpose. A recipient may distribute the Original Software or a Modified Work
-solely for a Non-Commercial Purpose and in compliance with Section 4.
+Purpose and only when that activity is not Public Hosting or Deployment. A
+recipient may distribute the Original Software or a Modified Work solely for a
+Non-Commercial Purpose and in compliance with Section 4. For clarity, this
+source-redistribution permission does not grant permission to operate a publicly
+accessible instance.
 
 Each recipient receives this license to the Original Software directly from the
 Licensor. The license is personal to that recipient and is non-transferable and
@@ -84,7 +98,8 @@ A Contributor retains copyright in that Contributor's Contribution. By
 intentionally distributing a Contribution as part of a Modified Work under this
 License, the Contributor grants each recipient a worldwide, non-exclusive,
 royalty-free license to reproduce, run, study, modify, and redistribute that
-Contribution solely for a Non-Commercial Purpose and subject to this License.
+Contribution solely for a Non-Commercial Purpose, only when the activity is not
+Public Hosting or Deployment, and subject to this License.
 
 Each downstream recipient receives the license to a Contribution directly from
 the applicable Contributor. No distributor acts as a sublicensor for the
@@ -113,6 +128,11 @@ Every copy or Modified Work that is shared or distributed must:
   g. when distributed in executable or object-code form, include the complete
      corresponding source code or a durable, no-charge means of obtaining it.
 
+Source-code redistribution, including through a publicly accessible source-code
+repository, is permitted when these conditions are satisfied. Distribution of
+source code, executable code, or object code does not authorize Public Hosting
+or Deployment of the Original Software or a Modified Work.
+
 Compliance with these conditions permits redistribution; it does not transfer
 ownership and does not constitute sublicensing. Attribution, identification of a
 Modified Work, or other required notices do not imply that the Licensor, a
@@ -120,7 +140,16 @@ Contributor, or any third party endorses, sponsors, or is affiliated with the
 recipient or the Modified Work. No one may make such a representation without
 separate written permission from the person or entity concerned.
 
-5. Commercial Licensing and Reserved Rights
+5. Public Hosting, Commercial Licensing, and Reserved Rights
+
+This License grants no right to engage in Public Hosting or Deployment of the
+Original Software or a Modified Work. Prior written authorization from the
+Licensor is required before any Public Hosting or Deployment of the Original
+Software, even when access is free, the operator is nonprofit, no revenue or
+commercial advantage is involved, or the stated purpose is educational,
+research, portfolio, demonstration, preview, or testing. Public Hosting or
+Deployment of a Modified Work may also require separate prior written
+authorization from every applicable Contributor.
 
 This License grants no right to make Commercial Use of the Original Software or
 a Modified Work. Commercial Use of the Original Software requires a separate
@@ -200,8 +229,8 @@ enforce a provision is not a waiver of the right to enforce it later.
 
 12. Written Authorization and Contact
 
-Requests for commercial licensing or clarification regarding the Original
-Software must be sent to:
+Requests for Public Hosting or Deployment authorization, commercial licensing,
+or clarification regarding the Original Software must be sent to:
 
 actuarycareermatch@gmail.com
 
