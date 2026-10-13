@@ -1,0 +1,8 @@
+<div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+  {% if user.is_authenticated %}
+    {% if job.is_saved_by_user %}<form method="post" action="{% url 'jobs:unsave' job.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}"><button class="btn btn-sm btn-outline-secondary">Unsave</button></form><span class="badge text-bg-success">Saved</span>
+    {% else %}<form method="post" action="{% url 'jobs:save' job.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}"><button class="btn btn-sm btn-outline-primary">Save job</button></form>{% endif %}
+    {% if job.user_application %}<a class="btn btn-sm btn-outline-dark" href="{% url 'jobs:application_edit' job.user_application.pk %}">Application: {{ job.user_application.get_status_display }}</a>
+    {% else %}<form method="post" action="{% url 'jobs:start_tracking' job.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-dark">Track application</button></form>{% endif %}
+  {% else %}<form method="post" action="{% url 'jobs:save' job.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}"><button class="btn btn-sm btn-outline-primary">Save job</button></form>{% endif %}
+</div>

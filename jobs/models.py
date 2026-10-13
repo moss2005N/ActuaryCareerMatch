@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxLengthValidator, MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -199,6 +199,15 @@ class JobPosting(models.Model):
     def is_expired(self):
         return bool(self.expires_at and self.expires_at <= timezone.now())
 
+    @property
+    def metadata_badges(self):
+        labels = (
+            self.get_employment_type_display(),
+            self.get_work_arrangement_display(),
+            self.get_experience_level_display(),
+        )
+        return list(dict.fromkeys(label for label in labels if label))
+
     def __str__(self):
         return f"{self.title} at {self.company}"
 
@@ -284,3 +293,80 @@ class JobMatchExplanation(models.Model):
 
     def __str__(self):
         return f"Explanation for {self.match}"
+
+
+class SavedJob(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="saved_jobs")
+    job = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name="saved_by")
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-saved_at",)
+        constraints = [models.UniqueConstraint(fields=("user", "job"), name="jobs_savedjob_user_job_unique")]
+
+    def __str__(self):
+        return f"{self.user} saved {self.job}"
+
+
+class JobApplication(models.Model):
+    class Status(models.TextChoices):
+        INTERESTED = "interested", "Interested"
+        PREPARING = "preparing", "Preparing"
+        APPLIED = "applied", "Applied"
+        ONLINE_ASSESSMENT = "online_assessment", "Online assessment"
+        INTERVIEW = "interview", "Interview"
+        FINAL_INTERVIEW = "final_interview", "Final interview"
+        OFFER = "offer", "Offer"
+        REJECTED = "rejected", "Rejected"
+        WITHDRAWN = "withdrawn", "Withdrawn"
+        CLOSED = "closed", "Closed"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="job_applications")
+    job = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name="applications")
+    status = models.CharField(max_length=24, choices=Status.choices, default=Status.INTERESTED)
+    applied_at = models.DateField(blank=True, null=True)
+    last_updated_at = models.DateTimeField(auto_now=True)
+    follow_up_date = models.DateField(blank=True, null=True, db_index=True)
+    notes = models.TextField(blank=True, validators=[MaxLengthValidator(5000)])
+    external_application_url_snapshot = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-updated_at",)
+        constraints = [models.UniqueConstraint(fields=("user", "job"), name="jobs_application_user_job_unique")]
+        indexes = [models.Index(fields=("user", "status", "follow_up_date"))]
+
+    def clean(self):
+        if self.applied_at and self.applied_at > timezone.localdate():
+            raise ValidationError({"applied_at": "Application date cannot be in the future."})
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        previous_status = None if creating else type(self).objects.filter(pk=self.pk).values_list("status", flat=True).first()
+        if not self.external_application_url_snapshot and self.job_id:
+            self.external_application_url_snapshot = self.job.application_url
+        super().save(*args, **kwargs)
+        SavedJob.objects.get_or_create(user_id=self.user_id, job_id=self.job_id)
+        if creating or previous_status != self.status:
+            ApplicationStatusHistory.objects.create(
+                application=self,
+                old_status="" if creating else previous_status,
+                new_status=self.status,
+            )
+
+    def __str__(self):
+        return f"{self.user} — {self.job} — {self.get_status_display()}"
+
+
+class ApplicationStatusHistory(models.Model):
+    application = models.ForeignKey(JobApplication, on_delete=models.CASCADE, related_name="status_history")
+    old_status = models.CharField(max_length=24, choices=JobApplication.Status.choices, blank=True)
+    new_status = models.CharField(max_length=24, choices=JobApplication.Status.choices)
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-changed_at", "-pk")
+
+    def __str__(self):
+        return f"{self.application}: {self.old_status or 'Created'} → {self.new_status}"

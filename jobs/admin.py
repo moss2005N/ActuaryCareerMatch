@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import Company, ImportRun, JobMatch, JobMatchExplanation, JobPosting, JobSource
+from .models import (
+    ApplicationStatusHistory, Company, ImportRun, JobApplication, JobMatch,
+    JobMatchExplanation, JobPosting, JobSource, SavedJob,
+)
 from .services import sync_source
 
 
@@ -117,6 +120,41 @@ class JobMatchExplanationAdmin(admin.ModelAdmin):
     list_filter = ("provider", "updated_at")
     search_fields = ("match__user__username", "match__job__title")
     readonly_fields = tuple(field.name for field in JobMatchExplanation._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(SavedJob)
+class SavedJobAdmin(admin.ModelAdmin):
+    list_display = ("user", "job", "saved_at")
+    list_filter = ("saved_at", "job__company")
+    search_fields = ("user__username", "user__email", "job__title", "job__company__name")
+    readonly_fields = ("saved_at",)
+    list_select_related = ("user", "job", "job__company")
+
+
+@admin.register(JobApplication)
+class JobApplicationAdmin(admin.ModelAdmin):
+    list_display = ("user", "job", "company", "status", "applied_at", "follow_up_date", "updated_at")
+    list_filter = ("status", "job__company", "follow_up_date")
+    search_fields = ("user__username", "user__email", "job__title", "job__company__name")
+    exclude = ("notes",)
+    readonly_fields = ("external_application_url_snapshot", "created_at", "updated_at", "last_updated_at")
+    list_select_related = ("user", "job", "job__company")
+
+    @admin.display(description="Company", ordering="job__company__name")
+    def company(self, obj):
+        return obj.job.company
+
+
+@admin.register(ApplicationStatusHistory)
+class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
+    list_display = ("application", "old_status", "new_status", "changed_at")
+    list_filter = ("old_status", "new_status", "changed_at")
+    search_fields = ("application__user__username", "application__job__title")
+    readonly_fields = tuple(field.name for field in ApplicationStatusHistory._meta.fields)
+    list_select_related = ("application", "application__user", "application__job")
 
     def has_add_permission(self, request):
         return False

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My Jobs | Actuary Career Match{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1>My jobs</h1>
+  <p class="text-secondary">Your private saved jobs, application tracking, and follow-up dates.</p>
+  <div class="row g-3 mb-4">
+    {% for name, count in metrics.items %}<div class="col-6 col-md"><div class="card border-0 shadow-sm"><div class="card-body"><div class="h3 mb-0">{{ count }}</div><div class="text-secondary">{{ name|title }}</div></div></div></div>{% endfor %}
+  </div>
+  <form method="get" class="card border-0 shadow-sm mb-4"><div class="card-body"><div class="row g-3">
+    {% for field in filter_form %}<div class="col-md-3"><label class="form-label">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+    <div class="col-12"><button class="btn btn-primary">Filter</button> <a class="btn btn-outline-secondary" href="{% url 'jobs:my_jobs' %}">Clear</a></div>
+  </div></div></form>
+  {% for job in jobs %}<article class="card border-0 shadow-sm mb-3"><div class="card-body p-4">
+    <div class="d-flex justify-content-between gap-3"><div><h2 class="h4 mb-1">{% if job.active and not job.is_expired %}<a href="{% url 'jobs:detail' job.pk %}" class="text-decoration-none">{{ job.title }}</a>{% else %}{{ job.title }}{% endif %}</h2><p>{{ job.company.name }} · {{ job.location|default:"Location not specified" }}</p></div><div>{% if not job.active or job.is_expired %}<span class="badge text-bg-secondary">Posting inactive / closed</span>{% endif %}</div></div>
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      {% if job.is_saved_by_user %}<span class="badge text-bg-success">Saved {{ job.user_saved_job.saved_at|date:"M j, Y" }}</span>{% endif %}
+      {% if job.user_application %}<span class="badge text-bg-primary">{{ job.user_application.get_status_display }}</span>{% endif %}
+      {% if job.saved_match %}<span class="badge text-bg-light border">{{ job.saved_match.score }}% match</span>{% endif %}
+    </div>
+    {% if job.user_application %}<p class="mb-2">{% if job.user_application.applied_at %}<strong>Applied:</strong> {{ job.user_application.applied_at }} · {% endif %}{% if job.user_application.follow_up_date %}<strong>Follow up:</strong> <span{% if job.user_application.follow_up_date <= today %} class="text-danger fw-semibold"{% endif %}>{{ job.user_application.follow_up_date }}{% if job.user_application.follow_up_date <= today %} — due/overdue{% endif %}</span> · {% endif %}<strong>Last update:</strong> {{ job.user_application.updated_at|date:"M j, Y" }}</p><a class="btn btn-sm btn-outline-dark" href="{% url 'jobs:application_edit' job.user_application.pk %}">Edit tracking</a>{% else %}<p class="text-secondary">Saved without application tracking.</p>{% endif %}
+    {% include "jobs/_workflow_actions.html" with next_url=request.get_full_path %}
+  </div></article>{% empty %}<div class="alert alert-info">No jobs match these filters.</div>{% endfor %}
+</div>
+{% endblock %}
