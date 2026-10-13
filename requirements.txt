@@ -1,6 +1,6 @@
 asgiref==3.12.1
 Django==6.0.8
-pypdf==6.19.0
+pypdf==6.20.0
 sqlparse==0.6.0
 
 # Optional PostgreSQL driver. Uncomment when using DB_ENGINE=postgresql.
