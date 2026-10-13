@@ -1,0 +1,212 @@
+ActuaryCareerMatch Source-Available Non-Commercial License
+Draft 0.2 — Pending Legal Review — 12 October 2026
+
+IMPORTANT: THIS IS A DRAFT FOR LEGAL REVIEW. IT HAS NOT BEEN LEGALLY
+APPROVED. IT IS NOT AN OPEN SOURCE LICENSE, IS NOT APPROVED BY THE OPEN
+SOURCE INITIATIVE, AND MUST NOT BE DESCRIBED AS OPEN SOURCE OR OSI-COMPLIANT.
+
+Copyright (c) 2026 Dawei Niu
+
+1. Definitions
+
+"Licensor" means Dawei Niu.
+
+"Original Software" means the portions of the ActuaryCareerMatch source code,
+object code, and documentation for which the Licensor owns the copyright or has
+separately obtained sufficient rights to license under this License.
+
+"Contribution" means a copyrightable modification, addition, adaptation,
+translation, or other material independently authored by a person other than the
+Licensor and intentionally distributed as part of a Modified Work.
+
+"Contributor" means the copyright holder of a Contribution or a person who has
+sufficient rights to license that Contribution under this License.
+
+"Modified Work" means a work based on the Original Software that changes,
+adapts, translates, combines, or extends it, and may include one or more
+Contributions.
+
+"Non-Commercial Purpose" means use whose primary purpose is personal learning,
+non-commercial academic research, teaching, or a non-commercial educational
+project, and that is not undertaken for Commercial Use. A personal portfolio
+demonstration is a Non-Commercial Purpose only if the Original Software or a
+Modified Work is not offered to others as a hosted service and the demonstration
+is not sold, licensed, or used to generate revenue or commercial advantage.
+
+"Commercial Use" means any exercise of rights in the Original Software or a
+Modified Work that is intended for, directed toward, or materially connected
+with commercial advantage, monetary compensation, or the operation of a
+for-profit enterprise. Commercial Use includes, without limitation:
+
+  a. use by or for a for-profit entity in its internal operations, recruiting,
+     analytics, research and development, training, or evaluation;
+  b. deployment or hosting as, or as part of, a product or service, whether
+     access is paid or free, when it supports a business or revenue-generating
+     activity;
+  c. sale, licensing, rental, paid access, paid support, consulting, or other
+     services involving the Original Software or a Modified Work;
+  d. incorporation into a commercial product, service, platform, or offering;
+  e. use that generates advertising, sponsorship, subscription, transaction,
+     lead-generation, or similar revenue; and
+  f. research or education performed as a commercial deliverable or under an
+     arrangement granting a commercial sponsor rights in, privileged access to,
+     or a commercial benefit from the Original Software or a Modified Work.
+
+"Third-Party Materials" means materials not owned by the Licensor or a
+Contributor. This includes, without limitation, third-party job postings and job
+descriptions, employer-authored content, company and product names, trademarks,
+service marks, logos, externally sourced datasets, linked content, dependencies,
+libraries, fonts, images, and components governed by separate terms.
+
+2. License to the Original Software
+
+Subject to every condition in this License, the Licensor grants each recipient
+a worldwide, non-exclusive, royalty-free license to view, download, reproduce,
+run, study, and modify the Original Software solely for a Non-Commercial
+Purpose. A recipient may distribute the Original Software or a Modified Work
+solely for a Non-Commercial Purpose and in compliance with Section 4.
+
+Each recipient receives this license to the Original Software directly from the
+Licensor. The license is personal to that recipient and is non-transferable and
+non-sublicensable. Permitted redistribution under Section 4 is not a transfer or
+sublicense: each downstream recipient receives a separate license to the
+Original Software directly from the Licensor under these terms.
+
+Merely viewing or downloading publicly available source code is permitted
+regardless of the recipient's type of organization. A for-profit entity must
+obtain prior written authorization before running, modifying, deploying,
+integrating, evaluating, or otherwise using the Original Software beyond viewing
+or downloading it.
+
+3. License to Contributions
+
+A Contributor retains copyright in that Contributor's Contribution. By
+intentionally distributing a Contribution as part of a Modified Work under this
+License, the Contributor grants each recipient a worldwide, non-exclusive,
+royalty-free license to reproduce, run, study, modify, and redistribute that
+Contribution solely for a Non-Commercial Purpose and subject to this License.
+
+Each downstream recipient receives the license to a Contribution directly from
+the applicable Contributor. No distributor acts as a sublicensor for the
+Licensor or for another Contributor. A person may distribute only material that
+the person owns or is authorized to distribute.
+
+This Section does not assign a Contribution to the Licensor and does not grant
+the Licensor a right to offer a Contribution under separate commercial terms.
+Commercial rights in a Contribution require a separate written agreement with
+its copyright holder.
+
+4. Conditions on Redistribution
+
+Every copy or Modified Work that is shared or distributed must:
+
+  a. be distributed solely for a Non-Commercial Purpose;
+  b. include this complete License and retain all applicable copyright,
+     attribution, third-party, and disclaimer notices;
+  c. identify the Original Software as ActuaryCareerMatch and attribute the
+     Licensor as "Dawei Niu, copyright 2026";
+  d. conspicuously identify material modifications, their dates, and, when
+     applicable, their authors or copyright holders;
+  e. make each Contribution available under the direct license in Section 3;
+  f. impose no additional terms that restrict or expand the rights granted under
+     this License; and
+  g. when distributed in executable or object-code form, include the complete
+     corresponding source code or a durable, no-charge means of obtaining it.
+
+Compliance with these conditions permits redistribution; it does not transfer
+ownership and does not constitute sublicensing. Attribution, identification of a
+Modified Work, or other required notices do not imply that the Licensor, a
+Contributor, or any third party endorses, sponsors, or is affiliated with the
+recipient or the Modified Work. No one may make such a representation without
+separate written permission from the person or entity concerned.
+
+5. Commercial Licensing and Reserved Rights
+
+This License grants no right to make Commercial Use of the Original Software or
+a Modified Work. Commercial Use of the Original Software requires a separate
+written agreement signed by the Licensor before that use begins.
+
+The Licensor may offer the Original Software under separate commercial or other
+terms only to the extent the Licensor owns the applicable rights or has
+separately obtained sufficient rights to do so. The Licensor may not commercially
+relicense a Contribution owned by another person without that copyright holder's
+separate authorization. Commercial Use of a Modified Work may therefore require
+permission from both the Licensor and one or more Contributors.
+
+Nonprofit status, academic affiliation, government status, receipt of grants,
+payment of salaries, or collection of tuition does not by itself decide whether
+a use is commercial. The purpose, beneficiary, funding arrangement, and manner
+of deployment all matter. If a proposed use does not clearly fit the definition
+of a Non-Commercial Purpose, prior written authorization is required from every
+applicable copyright holder.
+
+6. Ownership, Trademarks, and No Endorsement
+
+The Licensor retains all right, title, and interest in the Original Software.
+Each Contributor retains all right, title, and interest in that Contributor's
+Contribution. All rights not expressly granted by this License are reserved.
+
+No trademark, service-mark, trade-name, logo, publicity, or endorsement rights
+are granted. The limited use of the ActuaryCareerMatch name required for
+attribution does not grant permission to use it as branding or to imply
+endorsement, sponsorship, or affiliation. No express patent license is granted.
+
+7. Third-Party Materials
+
+Third-Party Materials are excluded from the Original Software and Contributions
+licensed under this License, even if they appear in the same repository,
+distribution, documentation, database, interface, fixture, or link. Their
+inclusion or reference does not imply that the Licensor or a Contributor owns or
+licenses them.
+
+Third-Party Materials remain governed by applicable law and their own licenses,
+terms, permissions, and policies. Each recipient is responsible for identifying
+and complying with those requirements. Nothing in this License grants a right to
+copy, redistribute, use, or imply endorsement by an employer or other third
+party. Clearly identified fictional demonstration data authored for this project
+is not Third-Party Material solely because it resembles a category of real-world
+data.
+
+8. Termination
+
+The rights granted to a recipient by this License terminate automatically upon
+that recipient's breach. If the breach is curable, those rights will be
+reinstated provisionally when the breach is cured and permanently if the
+applicable copyright holder does not notify the recipient of the breach within
+30 days after cure. Sections 5 through 12 survive termination.
+
+9. Disclaimer of Warranty
+
+THE ORIGINAL SOFTWARE AND CONTRIBUTIONS ARE PROVIDED "AS IS" AND "AS
+AVAILABLE," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT
+LIMITATION WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, FITNESS FOR
+A PARTICULAR PURPOSE, ACCURACY, SECURITY, OR RESULTS. EACH RECIPIENT ASSUMES ALL
+RISK ARISING FROM USE OR INABILITY TO USE THEM.
+
+10. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSOR AND CONTRIBUTORS
+WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOSS OF DATA, PROFITS, REVENUE,
+GOODWILL, OR BUSINESS INTERRUPTION, ARISING FROM OR RELATED TO THE ORIGINAL
+SOFTWARE, CONTRIBUTIONS, OR THIS LICENSE, UNDER ANY THEORY OF LIABILITY, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+11. Severability and No Waiver
+
+If any provision is held unenforceable, it will be limited to the minimum extent
+necessary and the remaining provisions will remain in effect. Failure to
+enforce a provision is not a waiver of the right to enforce it later.
+
+12. Written Authorization and Contact
+
+Requests for commercial licensing or clarification regarding the Original
+Software must be sent to:
+
+actuarycareermatch@gmail.com
+
+Authorization from the Licensor is effective only when stated in a separate
+written agreement signed by the Licensor. Authorization for a Contribution must
+come separately from its applicable copyright holder. Silence, repository
+access, acceptance of an issue report or suggestion, or failure to enforce this
+License does not constitute authorization.
