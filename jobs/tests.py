@@ -104,6 +104,18 @@ class JobSystemTests(TestCase):
         self.assertContains(response, "&lt;script&gt;", html=False)
         self.assertNotContains(response, '<script>alert("unsafe")</script>', html=False)
 
+    def test_duplicate_visible_metadata_badges_are_rendered_once(self):
+        job = self.make_job(
+            employment_type="internship",
+            work_arrangement="hybrid",
+            experience_level="internship",
+        )
+
+        self.assertEqual(job.metadata_badges, ["Internship", "Hybrid"])
+        for url in (reverse("jobs:list"), reverse("jobs:detail", args=[job.pk])):
+            response = self.client.get(url)
+            self.assertContains(response, ">Internship</span>", count=1, html=False)
+
     def test_external_id_duplicate_prevention(self):
         self.make_job()
         with self.assertRaises(IntegrityError), transaction.atomic():

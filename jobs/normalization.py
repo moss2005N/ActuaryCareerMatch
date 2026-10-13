@@ -59,7 +59,7 @@ def detect_work_arrangement(location, text):
 
 def detect_experience_level(title, text):
     haystack = f"{title} {text}".lower()
-    if "intern" in haystack:
+    if re.search(r"\bintern(ship)?\b", haystack):
         return "internship"
     if re.search(r"\b(entry[- ]level|new grad(uate)?|junior)\b", haystack):
         return "entry"

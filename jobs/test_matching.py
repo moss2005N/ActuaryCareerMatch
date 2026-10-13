@@ -124,6 +124,17 @@ class MatchingServiceTests(MatchingTestBase):
         self.assertEqual(result.component_scores["location"], 100)
         self.assertEqual(result.component_scores["work_arrangement"], 100)
 
+    def test_senior_actuarial_analyst_is_matched_as_experienced_not_internship(self):
+        job = self.make_job(
+            title="Senior Actuarial Analyst",
+            experience_level=JobPosting.ExperienceLevel.EXPERIENCED,
+        )
+
+        result = calculate_match(self.user, job)
+
+        self.assertEqual(job.experience_level, JobPosting.ExperienceLevel.EXPERIENCED)
+        self.assertEqual(result.component_scores["employment_level"], 60)
+
     def test_sponsorship_mismatch_and_unknown_sponsorship(self):
         self.profile.requires_visa_sponsorship = True; self.profile.save()
         blocked = calculate_match(self.user, self.make_job(sponsorship_available=False))
@@ -142,6 +153,17 @@ class MatchingServiceTests(MatchingTestBase):
 
 
 class MatchPersistenceAndViewTests(MatchingTestBase):
+    def test_recommended_page_deduplicates_identical_metadata_badges(self):
+        self.profile.preferred_employment_type = "internship"
+        self.profile.target_job_level = "internship"
+        self.profile.save()
+        self.make_job(employment_type="internship", experience_level="internship")
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("jobs:recommended"))
+
+        self.assertContains(response, ">Internship</span>", count=1, html=False)
+
     def test_duplicate_job_match_prevention(self):
         job = self.make_job(); match = get_or_recalculate_match(self.user, job)
         with self.assertRaises(IntegrityError), transaction.atomic():

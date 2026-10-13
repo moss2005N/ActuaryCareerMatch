@@ -55,6 +55,22 @@ class AdapterParsingTests(TestCase):
         self.assertEqual(job.employment_type, "internship")
         self.assertEqual(job.work_arrangement, "hybrid")
 
+    def test_lever_senior_role_is_not_misclassified_by_internal_word(self):
+        source = self.source("lever", board_identifier="fixture")
+        fixture = [{
+            "id": "included-health-senior",
+            "text": "Senior Actuarial Analyst",
+            "descriptionPlain": "Partner with internal teams and support internal equity reviews.",
+            "additionalPlain": "This is a full-time position.",
+            "categories": {"commitment": "Full-Time", "location": "Remote"},
+            "hostedUrl": "https://jobs.example.test/included-health-senior",
+        }]
+
+        adapter = LeverSourceAdapter(source, fixture_data=fixture)
+        job = adapter.normalize(adapter.fetch()[0])
+
+        self.assertEqual(job.experience_level, JobPosting.ExperienceLevel.EXPERIENCED)
+
     def test_json_feed_adapter_with_configurable_mapping(self):
         source = self.source("other_api", base_url="https://example.test/jobs", field_mapping={
             "list_path": "data.jobs", "external_job_id": "job.id", "title": "job.title",
