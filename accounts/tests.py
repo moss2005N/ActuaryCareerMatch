@@ -277,13 +277,103 @@ class AccountSecurityTests(TestCase):
         self.assertRedirects(response, reverse("profiles:detail"))
         self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
 
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_protected_page_login_and_otp_return_to_original_destination(self, _random):
+        user = self.create_user()
+        destination = reverse("jobs:my_jobs")
+
+        protected = self.client.get(destination)
+        self.assertRedirects(
+            protected,
+            f"{reverse('accounts:login')}?next={destination}",
+            fetch_redirect_response=False,
+        )
+        login_page = self.client.get(protected.url)
+        self.assertContains(login_page, f'name="next" value="{destination}"')
+        password = self.client.post(reverse("accounts:login"), {
+            "identifier": user.email,
+            "password": PASSWORD,
+            "next": destination,
+        })
+        self.assertRedirects(password, reverse("accounts:login_otp"))
+
+        response = self.client.post(reverse("accounts:login_otp"), {"code": "123456"})
+
+        self.assertRedirects(response, destination)
+        self.assertNotIn("pending_login_next", self.client.session)
+
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_malicious_external_next_is_rejected(self, _random):
+        user = self.create_user()
+        self.client.post(reverse("accounts:login"), {
+            "identifier": user.username,
+            "password": PASSWORD,
+            "next": "https://evil.example/steal",
+        })
+
+        self.assertNotIn("pending_login_next", self.client.session)
+        response = self.client.post(reverse("accounts:login_otp"), {"code": "123456"})
+        self.assertRedirects(response, reverse("profiles:detail"))
+
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_resend_login_code_preserves_pending_destination(self, _random):
+        user = self.create_user()
+        destination = reverse("jobs:my_jobs")
+        self.client.post(reverse("accounts:login"), {
+            "identifier": user.username,
+            "password": PASSWORD,
+            "next": destination,
+        })
+
+        response = self.client.post(reverse("accounts:resend_login_otp"))
+
+        self.assertRedirects(response, reverse("accounts:login_otp"))
+        self.assertEqual(self.client.session["pending_login_next"], destination)
+        verified = self.client.post(reverse("accounts:login_otp"), {"code": "123456"})
+        self.assertRedirects(verified, destination)
+
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_invalid_otp_preserves_pending_destination(self, _random):
+        user = self.create_user()
+        destination = reverse("jobs:my_jobs")
+        self.client.post(reverse("accounts:login"), {
+            "identifier": user.username,
+            "password": PASSWORD,
+            "next": destination,
+        })
+
+        response = self.client.post(reverse("accounts:login_otp"), {"code": "000000"})
+
+        self.assertContains(response, "invalid or has expired")
+        self.assertEqual(self.client.session["pending_login_next"], destination)
+
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_expired_login_otp_preserves_pending_destination(self, _random):
+        user = self.create_user()
+        destination = reverse("jobs:my_jobs")
+        self.client.post(reverse("accounts:login"), {
+            "identifier": user.username,
+            "password": PASSWORD,
+            "next": destination,
+        })
+        PhoneOTPChallenge.objects.filter(
+            user=user,
+            purpose=PhoneOTPChallenge.Purpose.LOGIN,
+            used_at__isnull=True,
+        ).update(expires_at=timezone.now() - timedelta(seconds=1))
+
+        response = self.client.post(reverse("accounts:login_otp"), {"code": "123456"})
+
+        self.assertContains(response, "invalid or has expired")
+        self.assertEqual(self.client.session["pending_login_next"], destination)
+
     def test_recovery_code_works_only_once(self):
         user = self.create_user()
         raw_code = generate_recovery_codes(user, count=1)[0]
         self.set_session_value("pending_login_user_id", user.pk)
 
         response = self.client.post(reverse("accounts:recovery_login"), {"recovery_code": raw_code})
-        self.assertRedirects(response, reverse("accounts:security"))
+        self.assertRedirects(response, reverse("profiles:detail"))
         self.client.post(reverse("accounts:logout"))
         self.client.post(reverse("accounts:login"), {
             "identifier": user.email,
@@ -293,6 +383,25 @@ class AccountSecurityTests(TestCase):
         response = self.client.post(reverse("accounts:recovery_login"), {"recovery_code": raw_code})
         self.assertContains(response, "already been used")
         self.assertNotIn("_auth_user_id", self.client.session)
+
+    @patch("accounts.security.secrets.randbelow", return_value=123456)
+    def test_recovery_code_preserves_pending_destination(self, _random):
+        user = self.create_user()
+        raw_code = generate_recovery_codes(user, count=1)[0]
+        destination = reverse("jobs:my_jobs")
+        self.client.post(reverse("accounts:login"), {
+            "identifier": user.email,
+            "password": PASSWORD,
+            "next": destination,
+        })
+
+        response = self.client.post(
+            reverse("accounts:recovery_login"),
+            {"recovery_code": raw_code},
+        )
+
+        self.assertRedirects(response, destination)
+        self.assertNotIn("pending_login_next", self.client.session)
 
     def test_changing_email_requires_reverification(self):
         user = self.create_user()

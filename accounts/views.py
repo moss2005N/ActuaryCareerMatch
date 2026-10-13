@@ -8,6 +8,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import (
@@ -33,7 +34,31 @@ from .security import (
 )
 
 PENDING_LOGIN_KEY = "pending_login_user_id"
+PENDING_LOGIN_NEXT_KEY = "pending_login_next"
 SECURITY_SETUP_KEY = "security_setup_user_id"
+
+
+def _safe_next_url(request):
+    candidate = request.POST.get("next") or request.GET.get("next") or ""
+    if candidate and url_has_allowed_host_and_scheme(
+        candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return candidate
+    return ""
+
+
+def _set_pending_login_destination(request, destination):
+    if destination:
+        request.session[PENDING_LOGIN_NEXT_KEY] = destination
+    else:
+        request.session.pop(PENDING_LOGIN_NEXT_KEY, None)
+
+
+def _consume_login_destination(request):
+    destination = request.session.pop(PENDING_LOGIN_NEXT_KEY, "")
+    return destination or reverse("profiles:detail")
 
 
 def _send_verification_email(request, user):
@@ -116,6 +141,7 @@ def login_step_one(request):
     if request.user.is_authenticated:
         return redirect("profiles:detail")
     form = TwoStepLoginForm(request.POST or None, request=request)
+    safe_next = _safe_next_url(request)
     if request.method == "POST" and form.is_valid():
         user = form.user
         if settings.DEBUG and (user.is_staff or user.is_superuser):
@@ -128,13 +154,14 @@ def login_step_one(request):
             request.session[SECURITY_SETUP_KEY] = user.pk
             return redirect("accounts:phone_change")
         request.session[PENDING_LOGIN_KEY] = user.pk
+        _set_pending_login_destination(request, safe_next)
         try:
             issue_phone_otp(user, PhoneOTPChallenge.Purpose.LOGIN)
         except OTPThrottled as exc:
             form.add_error(None, str(exc))
         else:
             return redirect("accounts:login_otp")
-    return render(request, "accounts/login.html", {"form": form})
+    return render(request, "accounts/login.html", {"form": form, "next": safe_next})
 
 
 def login_otp(request):
@@ -152,9 +179,10 @@ def login_otp(request):
             form.add_error(None, str(exc))
         else:
             if valid:
+                destination = _consume_login_destination(request)
                 request.session.pop(PENDING_LOGIN_KEY, None)
                 login(request, user)
-                return redirect("profiles:detail")
+                return redirect(destination)
             form.add_error("code", "The code is invalid or has expired.")
     return render(
         request,
@@ -269,9 +297,10 @@ def recovery_login(request):
     form = RecoveryCodeForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         if consume_recovery_code(user, form.cleaned_data["recovery_code"]):
+            destination = _consume_login_destination(request)
             request.session.pop(PENDING_LOGIN_KEY, None)
             login(request, user)
-            return redirect("accounts:security")
+            return redirect(destination)
         form.add_error("recovery_code", "The recovery code is invalid or has already been used.")
     return render(request, "accounts/recovery_login.html", {"form": form})
 
