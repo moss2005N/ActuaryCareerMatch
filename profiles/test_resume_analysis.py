@@ -119,6 +119,51 @@ class ResumeAnalysisTests(TestCase):
         self.upload_fixture(); item = analyze_user_resume(self.user).review_items.filter(kind="exam").first(); ignore_suggestion(self.user, item)
         item.refresh_from_db(); self.assertEqual(item.status, "ignored"); self.assertFalse(UserExam.objects.filter(user=self.user).exists())
 
+    def test_resume_deletion_purges_owned_file_analysis_and_suggestions_only(self):
+        owner_profile = self.upload_fixture()
+        other_profile = self.upload_fixture(user=self.other)
+        owner_file = owner_profile.resume.name
+        other_file = other_profile.resume.name
+        owner_analysis = analyze_user_resume(self.user)
+        other_analysis = analyze_user_resume(self.other)
+        self.user.candidate_profile.full_name = "Retained Profile Name"
+        self.user.candidate_profile.save(update_fields=("full_name",))
+        retained_name = self.user.candidate_profile.full_name
+        owner_suggestion_ids = list(owner_analysis.review_items.values_list("pk", flat=True))
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("profiles:resume_delete"), follow=True)
+
+        self.assertRedirects(response, reverse("profiles:resume"))
+        self.assertContains(response, "Resume and stored resume analysis data deleted.")
+        self.user.candidate_profile.refresh_from_db()
+        self.other.candidate_profile.refresh_from_db()
+        self.assertFalse(self.user.candidate_profile.resume)
+        self.assertEqual(self.user.candidate_profile.resume_original_filename, "")
+        self.assertFalse(private_resume_storage.exists(owner_file))
+        self.assertFalse(ResumeAnalysis.objects.filter(pk=owner_analysis.pk).exists())
+        self.assertFalse(ResumeSuggestion.objects.filter(pk__in=owner_suggestion_ids).exists())
+        self.assertEqual(self.user.candidate_profile.full_name, retained_name)
+        self.assertTrue(self.other.candidate_profile.resume)
+        self.assertEqual(self.other.candidate_profile.resume.name, other_file)
+        self.assertTrue(private_resume_storage.exists(other_file))
+        self.assertTrue(ResumeAnalysis.objects.filter(pk=other_analysis.pk, user=self.other).exists())
+
+    def test_resume_deletion_purges_residual_analysis_when_file_is_already_missing(self):
+        profile = self.upload_fixture()
+        analysis = analyze_user_resume(self.user)
+        stored_name = profile.resume.name
+        profile.resume.storage.delete(stored_name)
+        profile.resume = ""
+        profile.resume_original_filename = ""
+        profile.save(update_fields=("resume", "resume_original_filename"))
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("profiles:resume_delete"))
+
+        self.assertRedirects(response, reverse("profiles:resume"))
+        self.assertFalse(ResumeAnalysis.objects.filter(pk=analysis.pk).exists())
+
     @override_settings(AI_RESUME_PROVIDER="not-configured")
     def test_ai_unavailable_does_not_crash(self):
         self.upload_fixture(); analysis = analyze_user_resume(self.user)

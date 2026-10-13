@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -12,7 +13,7 @@ from .forms import (
     UserSkillForm,
     WorkExperienceForm,
 )
-from .models import Education, ResumeSuggestion, UserExam, UserSkill, WorkExperience
+from .models import CandidateProfile, Education, ResumeSuggestion, UserExam, UserSkill, WorkExperience
 from .resume_analysis.base import ResumeAnalysisError
 from .resume_analysis.service import analyze_user_resume, apply_suggestion, ignore_suggestion, resume_identifier
 from .services import calculate_profile_completeness
@@ -192,13 +193,17 @@ def resume_download(request):
 @login_required
 @require_POST
 def resume_delete(request):
-    profile = request.user.candidate_profile
-    if profile.resume:
-        name = profile.resume.name
+    with transaction.atomic():
+        profile = CandidateProfile.objects.select_for_update().get(user=request.user)
+        name = profile.resume.name if profile.resume else ""
+        storage = profile.resume.storage
+        request.user.resume_analyses.all().delete()
         profile.resume = ""
         profile.resume_original_filename = ""
         profile.save(update_fields=["resume", "resume_original_filename"])
-        profile.resume.storage.delete(name)
+        if name:
+            storage.delete(name)
+    messages.success(request, "Resume and stored resume analysis data deleted.")
     return redirect("profiles:resume")
 
 
